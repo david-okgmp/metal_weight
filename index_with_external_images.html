@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="https://cdn.counter.dev/script.js" data-id="87c02a6c-c06f-4c94-9d27-9d46d4ae65bd" data-utcoffset="9"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>Metal Weight Calculator</title>
+  <style>
+    body { 
+        font-family: Arial, sans-serif; 
+        background:#f9f9f9; 
+        margin:0; 
+        padding:0; 
+        font-size:18px; 
+        display:flex; 
+        justify-content:center; 
+        align-items:center; 
+        height:100vh; 
+    }
+    .container { 
+        width:95%; 
+        max-width:480px; 
+        margin:auto; 
+        padding:15px; 
+        background:#fff; 
+        border-radius:10px; 
+        box-shadow:0 2px 8px rgba(0,0,0,.1); 
+        box-sizing:border-box; 
+    }
+    h1 { text-align:center; font-size:26px; margin-bottom:20px; }
+    label { font-weight:bold; display:block; margin-top:10px; font-size:18px; }
+    select, input { width:100%; padding:12px; margin-top:5px; border:1px solid #ccc; border-radius:6px; font-size:18px; box-sizing:border-box; }
+    .result { text-align:center; font-size:22px; font-weight:bold; margin-top:20px; color:#333; }
+    .btn-row { display:flex; gap:10px; margin-top:16px; }
+    .btn { flex:1; padding:14px; border:none; border-radius:8px; background:#333; color:#fff; font-weight:bold; font-size:18px; cursor:pointer; }
+    .btn-reset { background:#c00; }
+    .shape-image { text-align:center; margin-top:10px; }
+    .shape-image img { max-width:100%; height:auto; border:1px solid #ccc; border-radius:6px; background:#ffffff; }
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>Metal Weight Calculator</h1>
+
+    <label for="shape">Select Shape</label>
+    <select id="shape">
+      <option value="Round Bar">Round Bar</option>
+      <option value="Plate">Plate</option>
+      <option value="Pipe">Pipe</option>
+      <option value="H-Beam">H-Beam</option>
+      <option value="Hexagon Bar">Hexagon Bar</option>
+    </select>
+
+    <div class="shape-image" id="shapeImage">
+      <img src="roundbar.png" alt="형태 그림" id="shapeImageTag">
+    </div>
+
+    <label for="material">Select Material</label>
+    <select id="material">
+      <option value="Steel">Steel</option>
+      <option value="Aluminum">Aluminum</option>
+      <option value="Copper">Copper</option>
+      <option value="Titanium">Titanium</option>
+      <option value="PEEK">PEEK</option>
+    </select>
+
+    <div id="roundbarInputs">
+      <label for="diameter">Diameter (mm)</label>
+      <input type="number" id="diameter" placeholder="Diameter Enter">
+    </div>
+
+    <div id="plateInputs" style="display:none;">
+      <label for="thickness">Thickness (mm)</label>
+      <input type="number" id="thickness" placeholder="Thickness Enter">
+      <label for="width">Width (mm)</label>
+      <input type="number" id="width" placeholder="Width Enter">
+    </div>
+
+    <div id="pipeInputs" style="display:none;">
+      <label for="outerDiameter">Outer Diameter (mm)</label>
+      <input type="number" id="outerDiameter" placeholder="Outer Diameter Enter">
+      <label for="pipeThickness">Thickness (mm)</label>
+      <input type="number" id="pipeThickness" placeholder="Thickness Enter">
+    </div>
+
+    <div id="hbeamInputs" style="display:none;">
+      <label for="hWidth">Flange Width (mm)</label>
+      <input type="number" id="hWidth" placeholder="Flange Width Enter">
+      <label for="hHeight">H-Beam Height (mm)</label>
+      <input type="number" id="hHeight" placeholder="Enter H-Beam Height">
+      <label for="hWebThickness">Web Thickness (mm)</label>
+      <input type="number" id="hWebThickness" placeholder="Web Thickness Enter">
+      <label for="hFlangeThickness">Flange Thickness (mm)</label>
+      <input type="number" id="hFlangeThickness" placeholder="Flange Thickness Enter">
+    </div>
+
+    <div id="hexbarInputs" style="display:none;">
+      <label for="hexWidth">Across Flats (mm)</label>
+      <input type="number" id="hexWidth" placeholder="Across Flats Enter">
+    </div>
+
+    <label for="length">Length (mm)</label>
+    <input type="number" id="length" placeholder="Length Enter">
+
+    <label for="quantity">Quantity (pcs)</label>
+    <input type="number" id="quantity" value="1" min="1">
+
+    <div class="btn-row">
+      <button class="btn" id="calcBtn">Calculate</button>
+      <button class="btn btn-reset" id="resetBtn">Reset</button>
+    </div>
+
+    <div class="result" id="result">Weight: 0 kg</div>
+  </div>
+
+  <script>
+    const densities = { "Steel": 7850, "Aluminum": 2700, "Copper": 8960, "Titanium": 4500, "PEEK": 1320 };
+    const shapeImages = {
+  "Round Bar": "roundbar.png",
+  "Plate": "plate.png",
+  "Pipe": "pipe.png",
+  "H-Beam": "hbeam.png",
+  "Hexagon Bar": "hexbar.png"
+};
+    const num = (v) => parseFloat(String(v).replace(",", ".")) || 0;
+
+    function updateShape() {
+      const shape = document.getElementById("shape").value;
+      document.getElementById("roundbarInputs").style.display = shape === "Round Bar" ? "block" : "none";
+      document.getElementById("plateInputs").style.display = shape === "Plate" ? "block" : "none";
+      document.getElementById("pipeInputs").style.display = shape === "Pipe" ? "block" : "none";
+      document.getElementById("hbeamInputs").style.display = shape === "H-Beam" ? "block" : "none";
+      document.getElementById("hexbarInputs").style.display = shape === "Hexagon Bar" ? "block" : "none";
+      document.getElementById("shapeImageTag").src = shapeImages[shape] || "";
+    }
+
+    function calculate() {
+      const shape = document.getElementById("shape").value;
+      const material = document.getElementById("material").value;
+      const density = densities[material];
+      const length = num(document.getElementById("length").value) / 1000;
+      let weight = 0;
+
+      if (shape === "Round Bar") {
+        const diameter = num(document.getElementById("diameter").value) / 1000;
+        const volume = Math.PI * Math.pow(diameter / 2, 2) * length;
+        weight = volume * density;
+      } else if (shape === "Plate") {
+        const thickness = num(document.getElementById("thickness").value) / 1000;
+        const width = num(document.getElementById("width").value) / 1000;
+        const volume = thickness * width * length;
+        weight = volume * density;
+      } else if (shape === "Pipe") {
+        const outerDiameter = num(document.getElementById("outerDiameter").value) / 1000;
+        const pipeThickness = num(document.getElementById("pipeThickness").value) / 1000;
+        const innerDiameter = outerDiameter - (pipeThickness * 2);
+        const volume = Math.PI * (Math.pow(outerDiameter / 2, 2) - Math.pow(innerDiameter / 2, 2)) * length;
+        weight = volume * density;
+      } else if (shape === "H-Beam") {
+        const hWidth = num(document.getElementById("hWidth").value) / 1000;
+        const hHeight = num(document.getElementById("hHeight").value) / 1000;
+        const hWebThickness = num(document.getElementById("hWebThickness").value) / 1000;
+        const hFlangeThickness = num(document.getElementById("hFlangeThickness").value) / 1000;
+        const flangeArea = hWidth * hFlangeThickness * 2;
+        const webArea = (hHeight - 2 * hFlangeThickness) * hWebThickness;
+        const volume = (flangeArea + webArea) * length;
+        weight = volume * density;
+      } else if (shape === "Hexagon Bar") {
+        const hexWidth = num(document.getElementById("hexWidth").value) / 1000;
+        const side = hexWidth / Math.sqrt(3);
+        const area = (3 * Math.sqrt(3) / 2) * Math.pow(side, 2);
+        const volume = area * length;
+        weight = volume * density;
+      }
+      const quantity = num(document.getElementById("quantity").value);
+      const total = weight * quantity;
+      document.getElementById("result").innerText = "Weight: " + weight.toFixed(2) + " kg x " + quantity + " pcs = " + total.toFixed(2) + " kg";
+    }
+
+    function resetFields() {
+      document.getElementById("shape").value = "Round Bar";
+      document.getElementById("material").value = "Steel";
+      document.getElementById("diameter").value = "";
+      document.getElementById("thickness").value = "";
+      document.getElementById("width").value = "";
+      document.getElementById("outerDiameter").value = "";
+      document.getElementById("pipeThickness").value = "";
+      document.getElementById("hWidth").value = "";
+      document.getElementById("hHeight").value = "";
+      document.getElementById("hWebThickness").value = "";
+      document.getElementById("hFlangeThickness").value = "";
+      document.getElementById("hexWidth").value = "";
+      document.getElementById("length").value = "";
+      document.getElementById("quantity").value = "1";
+      updateShape();
+      document.getElementById("result").innerText = "Weight: 0 kg";
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("shape").addEventListener("change", updateShape);
+      document.getElementById("calcBtn").addEventListener("click", calculate);
+      document.getElementById("resetBtn").addEventListener("click", resetFields);
+      updateShape();
+    });
+  </script>
+</body>
+</html>
